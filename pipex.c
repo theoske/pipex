@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/26 21:18:10 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/04/26 21:39:51 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,7 +197,6 @@ char	*ft_strjoin(char *s1, char *s2)
 		j++;
 	}
 	join[i + j] = '\0';
-	// free(s1);
 	return (join);
 }
 
@@ -235,15 +234,24 @@ char	*ft_path_tester(char *totest, char *cmd)
 
 int	main(int argc, const char **argv, char **envp)
 {
-	char *path;
-	char	**str;
+	char	*path;
+	char	**cmd;
+	int		pid;
+	int		i;
 
+	i = 2;
+	pid = 0;
 	path = ft_env(envp);
-	str = ft_split(argv[2], ' ');
-	path = ft_path_tester(path, ft_strjoin("/", str[0]));
-	// printf("\n\n%s\n\n", argv[2]);
-	// printf("%s\n\n", path);
-	execve(path, str, envp);
-	//argv est un tableau de tableau avec la cmd et ses options
+	while (i < argc)
+	{
+		pid = fork();
+		if (pid == 0)
+		{
+			cmd = ft_split(argv[i], ' ');
+			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
+			execve(path, cmd, envp);
+		}
+		i += 2;
+	}
 	return (0);
 }
