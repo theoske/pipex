@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/26 21:58:05 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/04/26 22:21:47 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,6 +232,8 @@ char	*ft_path_tester(char *totest, char *cmd)
 	return (NULL);
 }
 //il faut maintenant faire les pipes
+// pour transferer le resultat d'une cmd dans la suivante 
+//et rentrer le resultat final dans outfile
 int	main(int argc, const char **argv, char **envp)
 {
 	char	*path;
