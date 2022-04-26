@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: theo <theo@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/22 21:12:04 by theo             ###   ########.fr       */
+/*   Updated: 2022/04/26 17:04:34 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,10 @@ int unlink(const char *pathname) : supprime un nom du systeme de fichier
 #include <unistd.h>
 #include <stdio.h>
 
-int	main(int argc, char **argv)
+//tester chaque path avec access et lancer cmd avec celui aui fonctionne
+int	main(int argc, const char **argv, char **envp)
 {
-	if (argc != 4)
-		return (0);
-	if (execve(argv[1], argv[0], )
+	char *cmd[] = {"ls", NULL};
+	execve("/bin/ls", cmd, envp);
+	return (0);
 }
