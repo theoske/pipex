@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/26 21:39:51 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/04/26 21:58:05 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,7 +231,7 @@ char	*ft_path_tester(char *totest, char *cmd)
 	}
 	return (NULL);
 }
-
+//il faut maintenant faire les pipes
 int	main(int argc, const char **argv, char **envp)
 {
 	char	*path;
@@ -242,7 +242,7 @@ int	main(int argc, const char **argv, char **envp)
 	i = 2;
 	pid = 0;
 	path = ft_env(envp);
-	while (i < argc)
+	while (i < argc - 1)
 	{
 		pid = fork();
 		if (pid == 0)
@@ -251,7 +251,7 @@ int	main(int argc, const char **argv, char **envp)
 			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
 			execve(path, cmd, envp);
 		}
-		i += 2;
+		i++;
 	}
 	return (0);
 }
