@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/26 19:06:53 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/04/26 19:20:24 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,6 +241,6 @@ int	main(int argc, const char **argv, char **envp)
 	path = ft_path_tester(path, ft_strjoin("/", (char *)argv[2]));
 	// printf("\n\n%s\n\n", argv[2]);
 	// printf("%s\n\n", path);
-	execve(path, &argv[2], envp);
+	execve(path, (char *const *)&argv[2], envp);//argv est un tableau de tableau avec la cmd et ses options
 	return (0);
 }
