@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/27 17:26:54 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/04/27 17:51:43 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,7 +251,7 @@ int	main(int argc, const char **argv, char **envp)
 	
 	argv[2] = ft_strjoin(ft_strjoin(argv[2], " "), argv[1]);
 
-	//trouver comment transferer cmd a cmd2
+	//voir video simuler pipe CodeVault
 	while (i < argc - 1)// boucle pipe cmd =>cmd
 	{
 		pid = fork();
