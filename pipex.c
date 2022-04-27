@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/27 16:12:44 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/04/27 17:26:54 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,29 +248,21 @@ int	main(int argc, const char **argv, char **envp)
 	path = ft_env(envp);
 
 	// exec cmd1 => infile
-	// int		j;
+	
+	argv[2] = ft_strjoin(ft_strjoin(argv[2], " "), argv[1]);
 
-	// j = 1;
-	// buff = NULL;
-	// pipefd[0] = open(argv[1], O_RDONLY);
-	// while (read(pipefd[0], buff, 1) != 0)
-	// {
-	// 	buff = malloc(sizeof(char) * j + 1);
-	// 	buff[j] = 0;
-	// }
-	// close(pipefd[0]);
-
+	//trouver comment transferer cmd a cmd2
 	while (i < argc - 1)// boucle pipe cmd =>cmd
 	{
-		
 		pid = fork();
 		if (pid == -1)
 			perror("fourchette is AlKpoute");
-		if (pid == 0)
+		if (pid == 0)//execute cmd
 		{
 			cmd = ft_split(argv[i], ' ');
 			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
-			execve(path, cmd, envp);
+			if (execve(path, cmd, envp) == -1)
+				perror("execve KC");
 		}
 		// if (pipe(pipefd) == -1)
 		// 	perror("pipe mal taillee");
