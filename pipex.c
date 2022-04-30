@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/27 17:51:43 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/04/30 19:58:13 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,49 +225,181 @@ char	*ft_path_tester(char *totest, char *cmd)
 	tab = ft_split(totest, ':');
 	while (tab && tab[i])
 	{
-		tab[i] = ft_strjoin(tab[i], cmd);
+		tab[i] = ft_strjoin(tab[i], ft_strjoin("/", cmd));
 		if (access(tab[i], R_OK) == 0)
 			return (tab[i]);
 		i++;
 	}
 	return (NULL);
 }
-//il faut maintenant faire les pipes
-// pour transferer le resultat d'une cmd dans la suivante 
-//et rentrer le resultat final dans outfile
-int	main(int argc, const char **argv, char **envp)
+
+
+char	*ft_line(char *line, char *buffer, int octet, int fd)
 {
-	char	*path;
-	void	*buff;
-	char	**cmd;
-	int		pipefd[2];
-	int		pid;
-	int		i;
-
-	i = 2;
-	path = ft_env(envp);
-
-	// exec cmd1 => infile
-	
-	argv[2] = ft_strjoin(ft_strjoin(argv[2], " "), argv[1]);
-
-	//voir video simuler pipe CodeVault
-	while (i < argc - 1)// boucle pipe cmd =>cmd
+	while (buffer[0] != '\n' && octet > 0)
 	{
-		pid = fork();
-		if (pid == -1)
-			perror("fourchette is AlKpoute");
-		if (pid == 0)//execute cmd
-		{
-			cmd = ft_split(argv[i], ' ');
-			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
-			if (execve(path, cmd, envp) == -1)
-				perror("execve KC");
-		}
-		// if (pipe(pipefd) == -1)
-		// 	perror("pipe mal taillee");
+		octet = read(fd, buffer, 1);
+		buffer[octet] = '\0';
+		line = ft_strjoin(line, buffer);
+	}
+	return (line);
+}
+
+char	*ft_strjoinfree(char *s1, char *s2)
+{
+	char	*join;
+	int		i;
+	int		j;
+
+	j = 0;
+	i = 0;
+	join = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!join)
+		return (NULL);
+	while (s1 && s1[i])
+	{
+		join[i] = *(char *)(s1 + i);
 		i++;
 	}
-	// close();
+	while (s2[j])
+	{
+		join[i + j] = *(char *)(s2 + j);
+		j++;
+	}
+	join[i + j] = '\0';
+	free(s1);
+	return (join);
+}
+
+char	*get_next_line(int fd)
+{
+	char		buffer[2];
+	char		*line;
+	int			octet;
+
+	line = NULL;
+	octet = 0;
+	if (octet == 0)
+	{
+		octet = read(fd, buffer, 1);
+		buffer[octet] = '\0';
+		line = ft_strjoinfree(line, buffer);
+	}
+	if (octet > 0 && buffer[0] != '\0')
+		line = ft_line(line, buffer, octet, fd);
+	else
+	{
+		free(line);
+		return (NULL);
+	}
+	close(fd);
+	return (line);
+}
+
+void	ft_putstr_fd(char *s, int fd)
+{
+	int		i;
+
+	i = 0;
+	while (s[i])
+	{
+		write(fd, &(s[i]), 1);
+		i++;
+	}
+}
+
+int	main(int argc, const char **argv, char **envp)
+{
+	int		fd[2];
+	int		fd2[2];
+	int		pid;
+	char	*path;
+	char	**cmd;
+
+	pipe(fd);
+	path = ft_env(envp);
+	cmd = ft_split(ft_strjoinfree(ft_strjoin((char *)argv[2], " "), (char *)argv[1]), ' ');
+	pid = fork();
+	if (pid == 0)//resultat de cmd1 dans pipe
+	{
+		path = ft_path_tester(path, cmd[0]);
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[0]);
+		close(fd[1]);
+		execve(path, cmd, envp);
+	}
+
+	// pipe(fd2);
+	//voir video gerer plusieurs pipe
+	int pid2 = fork();
+	path = ft_env(envp);
+	char **cmd2 = ft_split(argv[3], ' ');
+	if (pid2 == 0)//prendre resultat de pipe et mettre dans cmd
+	{
+		path = ft_path_tester(path, cmd2[0]);
+		dup2(fd[0], STDIN_FILENO);
+		// dup2(fd2[1], STDOUT_FILENO);
+		close(fd[0]);
+		close(fd[1]);
+		// close(fd2[1]);
+		execve(path, cmd2, envp);
+		// printf("%s \n", get_next_line(fd2[0]));
+		close(fd2[0]);
+	}
+	close(fd[0]);
+	close(fd[1]);
+	// close(fd2[0]);
+	// close(fd2[1]);
+	waitpid(pid, 0, 0);
+	waitpid(pid2, 0, 0);
 	return (0);
 }
+
+// char	*path;
+// 	char	**cmd;
+// 	int		pipefd[2];
+// 	int		pid;
+// 	int		pid2;
+// 	int		i;
+
+// 	// i = 2;
+// 	path = ft_env(envp);
+// 	if (pipe(pipefd) == -1)
+// 			perror("pipe mal taillee");	
+// 	argv[2] = ft_strjoin(ft_strjoin(argv[2], " "), argv[1]);// file cmd1
+
+// 	// while (i < argc - 1)
+// 	// {
+// 		pid = fork();
+// 		if (pid == -1)
+// 			perror("fourchette is AlKpoute");
+// 		if (pid == 0)//execute cmd
+// 		{
+// 			cmd = ft_split(argv[2], ' ');
+// 			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
+// 			dup2(pipefd[0], STDOUT_FILENO);
+// 			close (pipefd[0]);
+// 			close (pipefd[1]);
+// 			if (execve(path, cmd, envp) == -1)
+// 				perror("execve KC");
+// 		}
+
+// 		pid2 = fork();
+// 		if (pid2 == -1)
+// 			perror("fourchette is AlKpoute");
+// 		if (pid2 == 0)//execute cmd
+// 		{
+// 			cmd = ft_split(argv[2 + 1], ' ');
+// 			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
+// 			dup2(pipefd[1], STDIN_FILENO);
+// 			close (pipefd[0]);
+// 			close (pipefd[1]);
+// 			if (execve(path, cmd, envp) == -1)
+// 				perror("execve KC");
+// 		}
+
+// 		i++;
+// 		close (pipefd[0]);
+// 		close (pipefd[1]);
+// 		waitpid(pid, 0, 0);
+// 		waitpid(pid2, 0, 0);
