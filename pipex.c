@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/04/30 19:58:13 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/01 17:34:26 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,6 +296,24 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
+char *ft_fdtostr(int fd)
+{
+	char	*str;
+	char	*line;
+	char	buffer[2];
+	int		octet;
+
+	str = NULL;
+	line = get_next_line(fd);
+	while (line != NULL)
+	{
+		printf("%s", line);
+		str = ft_strjoinfree(str, line);
+		line = get_next_line(fd);
+	}
+	return (str);
+}
+
 void	ft_putstr_fd(char *s, int fd)
 {
 	int		i;
@@ -328,78 +346,31 @@ int	main(int argc, const char **argv, char **envp)
 		close(fd[1]);
 		execve(path, cmd, envp);
 	}
-
-	// pipe(fd2);
-	//voir video gerer plusieurs pipe
+	pipe(fd2);
 	int pid2 = fork();
 	path = ft_env(envp);
 	char **cmd2 = ft_split(argv[3], ' ');
-	if (pid2 == 0)//prendre resultat de pipe et mettre dans cmd
+	if (pid2 == 0)//prendre resultat de pipe et mettre dans cmd2
 	{
+		close(fd[1]);
 		path = ft_path_tester(path, cmd2[0]);
 		dup2(fd[0], STDIN_FILENO);
-		// dup2(fd2[1], STDOUT_FILENO);
+		dup2(fd2[1], STDOUT_FILENO);
 		close(fd[0]);
-		close(fd[1]);
-		// close(fd2[1]);
-		execve(path, cmd2, envp);
-		// printf("%s \n", get_next_line(fd2[0]));
+		close(fd2[1]);
 		close(fd2[0]);
+		execve(path, cmd2, envp);
 	}
 	close(fd[0]);
 	close(fd[1]);
-	// close(fd2[0]);
-	// close(fd2[1]);
+	char *tab = ft_fdtostr(fd2[0]);
+	// printf("%s", tab);
+	int	outfd = open(argv[4], O_RDWR);
+	ft_putstr_fd(tab, outfd);
+	close(outfd);
+	close(fd2[0]);
+	close(fd2[1]);
 	waitpid(pid, 0, 0);
 	waitpid(pid2, 0, 0);
 	return (0);
 }
-
-// char	*path;
-// 	char	**cmd;
-// 	int		pipefd[2];
-// 	int		pid;
-// 	int		pid2;
-// 	int		i;
-
-// 	// i = 2;
-// 	path = ft_env(envp);
-// 	if (pipe(pipefd) == -1)
-// 			perror("pipe mal taillee");	
-// 	argv[2] = ft_strjoin(ft_strjoin(argv[2], " "), argv[1]);// file cmd1
-
-// 	// while (i < argc - 1)
-// 	// {
-// 		pid = fork();
-// 		if (pid == -1)
-// 			perror("fourchette is AlKpoute");
-// 		if (pid == 0)//execute cmd
-// 		{
-// 			cmd = ft_split(argv[2], ' ');
-// 			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
-// 			dup2(pipefd[0], STDOUT_FILENO);
-// 			close (pipefd[0]);
-// 			close (pipefd[1]);
-// 			if (execve(path, cmd, envp) == -1)
-// 				perror("execve KC");
-// 		}
-
-// 		pid2 = fork();
-// 		if (pid2 == -1)
-// 			perror("fourchette is AlKpoute");
-// 		if (pid2 == 0)//execute cmd
-// 		{
-// 			cmd = ft_split(argv[2 + 1], ' ');
-// 			path = ft_path_tester(path, ft_strjoin("/", cmd[0]));
-// 			dup2(pipefd[1], STDIN_FILENO);
-// 			close (pipefd[0]);
-// 			close (pipefd[1]);
-// 			if (execve(path, cmd, envp) == -1)
-// 				perror("execve KC");
-// 		}
-
-// 		i++;
-// 		close (pipefd[0]);
-// 		close (pipefd[1]);
-// 		waitpid(pid, 0, 0);
-// 		waitpid(pid2, 0, 0);
