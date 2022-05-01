@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/01 18:33:11 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/01 18:52:50 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -302,6 +302,8 @@ void	ft_putstr_fd(char *s, int fd)
 	}
 }
 
+// mettre en a la norme
+// tester leaks etc..
 int	main(int argc, const char **argv, char **envp)
 {
 	int		fd[2];
