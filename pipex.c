@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/01 18:07:43 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/01 18:33:11 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,41 +271,22 @@ char	*ft_strjoinfree(char *s1, char *s2)
 	return (join);
 }
 
-// char	*get_next_line(int fd)
-// {
-// 	char		buffer[2];
-// 	char		*line;
-// 	int			octet;
-
-// 	line = NULL;
-// 	octet = 0;
-// 	if (octet == 0)
-// 	{
-// 		octet = read(fd, buffer, 1);
-// 		buffer[octet] = '\0';
-// 		line = ft_strjoinfree(line, buffer);
-// 	}
-// 	if (octet > 0 && buffer[0] != '\0')
-// 		line = ft_line(line, buffer, octet, fd);
-// 	else
-// 	{
-// 		free(line);
-// 		return (NULL);
-// 	}
-// 	close(fd);
-// 	return (line);
-// }
-
 char *ft_fdtostr(int fd)
 {
 	char	*str;
-	char	buffer[1000000];
+	char	buffer[2];
 	int		octet;
 	
 	str = NULL;
-	octet = read(fd, buffer, 100);
+	octet = read(fd, buffer, 1);
 	buffer[octet] = 0;
 	str = ft_strjoin(str, buffer);
+	while (octet > 0)
+	{
+		octet = read(fd, buffer, 1);
+		buffer[octet] = 0;
+		str = ft_strjoin(str, buffer);
+	}
 	return (str);
 }
 
@@ -358,13 +339,12 @@ int	main(int argc, const char **argv, char **envp)
 	}
 	close(fd[0]);
 	close(fd[1]);
+	close(fd2[1]);
 	char *tab = ft_fdtostr(fd2[0]);
-	// printf(" a%s a", tab);
 	int	outfd = open(argv[4], O_RDWR);
 	ft_putstr_fd(tab, outfd);
 	close(outfd);
 	close(fd2[0]);
-	close(fd2[1]);
 	waitpid(pid, 0, 0);
 	waitpid(pid2, 0, 0);
 	return (0);
