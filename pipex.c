@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/04 16:08:29 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/04 17:06:01 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -321,6 +321,23 @@ void	ft_child(const char **argv, int *fd, char **envp)
 	execve(path, cmd, envp);
 }
 
+void	ft_child2(const char **argv,int *fd, int *fd2, char **envp)
+{
+	char **cmd2;
+	char *path;
+
+	cmd2 = ft_split(argv[3], ' ');
+	close(fd[1]);
+	path = ft_env(envp);
+	path = ft_path_tester(path, cmd2[0]);
+	dup2(fd[0], STDIN_FILENO);
+	dup2(fd2[1], STDOUT_FILENO);
+	close(fd[0]);
+	close(fd2[1]);
+	close(fd2[0]);
+	execve(path, cmd2, envp);
+}
+
 int	main(int argc, const char **argv, char **envp)
 {
 	int		fd[2];
@@ -335,28 +352,17 @@ int	main(int argc, const char **argv, char **envp)
 		ft_child(argv, fd, envp);
 	pipe(fd2);
 	int pid2 = fork();
-	path = ft_env(envp);
-	char **cmd2 = ft_split(argv[3], ' ');
 	if (pid2 == 0)
-	{
-		close(fd[1]);
-		path = ft_path_tester(path, cmd2[0]);
-		dup2(fd[0], STDIN_FILENO);
-		dup2(fd2[1], STDOUT_FILENO);
-		close(fd[0]);
-		close(fd2[1]);
-		close(fd2[0]);
-		execve(path, cmd2, envp);
-	}
-	close(fd[0]);
-	close(fd[1]);
-	close(fd2[1]);
+		ft_child2(argv, fd, fd2, envp);
 	char *tab = ft_fdtostr(fd2[0]);
 	int		outfd;
-	outfd = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 777);
+	outfd = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
 	ft_putstr_fd(tab, outfd);
 	close(outfd);
+	close(fd[0]);
+	close(fd[1]);
 	close(fd2[0]);
+	close(fd2[1]);
 	waitpid(pid, 0, 0);
 	waitpid(pid2, 0, 0);
 	return (0);
