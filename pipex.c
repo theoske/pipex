@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/01 18:52:50 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/04 14:45:47 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,6 +293,7 @@ char *ft_fdtostr(int fd)
 void	ft_putstr_fd(char *s, int fd)
 {
 	int		i;
+	char	eof;
 
 	i = 0;
 	while (s[i])
@@ -304,6 +305,7 @@ void	ft_putstr_fd(char *s, int fd)
 
 // mettre en a la norme
 // tester leaks etc..
+// voir si outfile existe sinon le creer
 int	main(int argc, const char **argv, char **envp)
 {
 	int		fd[2];
@@ -314,12 +316,14 @@ int	main(int argc, const char **argv, char **envp)
 
 	pipe(fd);
 	path = ft_env(envp);
-	cmd = ft_split(ft_strjoinfree(ft_strjoin((char *)argv[2], " "), (char *)argv[1]), ' ');
+	cmd = ft_split((char *)argv[2], ' ');
+	int fdo = open(argv[1], O_RDONLY);
 	pid = fork();
 	if (pid == 0)//resultat de cmd1 dans pipe
 	{
 		path = ft_path_tester(path, cmd[0]);
 		dup2(fd[1], STDOUT_FILENO);
+		dup2(fdo, STDIN_FILENO);
 		close(fd[0]);
 		close(fd[1]);
 		execve(path, cmd, envp);
@@ -343,7 +347,11 @@ int	main(int argc, const char **argv, char **envp)
 	close(fd[1]);
 	close(fd2[1]);
 	char *tab = ft_fdtostr(fd2[0]);
-	int	outfd = open(argv[4], O_RDWR);
+	int		outfd;
+	if (access(argv[4], F_OK) != 0)
+		outfd = open(argv[4], O_CREAT | O_RDWR);
+	else
+		outfd = open(argv[4], O_RDWR | O_TRUNC);
 	ft_putstr_fd(tab, outfd);
 	close(outfd);
 	close(fd2[0]);
