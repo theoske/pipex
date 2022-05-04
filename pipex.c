@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/04 14:45:47 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/04 16:08:29 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,9 +303,24 @@ void	ft_putstr_fd(char *s, int fd)
 	}
 }
 
-// mettre en a la norme
-// tester leaks etc..
-// voir si outfile existe sinon le creer
+void	ft_child(const char **argv, int *fd, char **envp)
+{
+	int		fdo;
+	char	*path;
+	char	**cmd;
+
+	path = ft_env(envp);
+	cmd = ft_split((char *)argv[2], ' ');
+	fdo = open(argv[1], O_RDONLY);
+	path = ft_path_tester(path, cmd[0]);
+	dup2(fd[1], STDOUT_FILENO);
+	dup2(fdo, STDIN_FILENO);
+	close(fd[0]);
+	close(fd[1]);
+	close(fdo);
+	execve(path, cmd, envp);
+}
+
 int	main(int argc, const char **argv, char **envp)
 {
 	int		fd[2];
@@ -315,24 +330,14 @@ int	main(int argc, const char **argv, char **envp)
 	char	**cmd;
 
 	pipe(fd);
-	path = ft_env(envp);
-	cmd = ft_split((char *)argv[2], ' ');
-	int fdo = open(argv[1], O_RDONLY);
 	pid = fork();
-	if (pid == 0)//resultat de cmd1 dans pipe
-	{
-		path = ft_path_tester(path, cmd[0]);
-		dup2(fd[1], STDOUT_FILENO);
-		dup2(fdo, STDIN_FILENO);
-		close(fd[0]);
-		close(fd[1]);
-		execve(path, cmd, envp);
-	}
+	if (pid == 0)
+		ft_child(argv, fd, envp);
 	pipe(fd2);
 	int pid2 = fork();
 	path = ft_env(envp);
 	char **cmd2 = ft_split(argv[3], ' ');
-	if (pid2 == 0)//prendre resultat de pipe et mettre dans cmd2
+	if (pid2 == 0)
 	{
 		close(fd[1]);
 		path = ft_path_tester(path, cmd2[0]);
@@ -348,10 +353,7 @@ int	main(int argc, const char **argv, char **envp)
 	close(fd2[1]);
 	char *tab = ft_fdtostr(fd2[0]);
 	int		outfd;
-	if (access(argv[4], F_OK) != 0)
-		outfd = open(argv[4], O_CREAT | O_RDWR);
-	else
-		outfd = open(argv[4], O_RDWR | O_TRUNC);
+	outfd = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 777);
 	ft_putstr_fd(tab, outfd);
 	close(outfd);
 	close(fd2[0]);
