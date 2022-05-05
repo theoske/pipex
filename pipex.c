@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/04 17:06:01 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/05 15:16:53 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,14 +278,15 @@ char *ft_fdtostr(int fd)
 	int		octet;
 	
 	str = NULL;
-	octet = read(fd, buffer, 1);
-	buffer[octet] = 0;
-	str = ft_strjoin(str, buffer);
+	if (read(fd, buffer, 1) == -1)
+		perror("ERROR read fdtostr");
+	buffer[1] = 0;
+	str = ft_strjoinfree(str, buffer);
 	while (octet > 0)
 	{
 		octet = read(fd, buffer, 1);
 		buffer[octet] = 0;
-		str = ft_strjoin(str, buffer);
+		str = ft_strjoinfree(str, buffer);
 	}
 	return (str);
 }
@@ -327,12 +328,12 @@ void	ft_child2(const char **argv,int *fd, int *fd2, char **envp)
 	char *path;
 
 	cmd2 = ft_split(argv[3], ' ');
-	close(fd[1]);
 	path = ft_env(envp);
 	path = ft_path_tester(path, cmd2[0]);
 	dup2(fd[0], STDIN_FILENO);
 	dup2(fd2[1], STDOUT_FILENO);
 	close(fd[0]);
+	close(fd[1]);
 	close(fd2[1]);
 	close(fd2[0]);
 	execve(path, cmd2, envp);
@@ -354,15 +355,15 @@ int	main(int argc, const char **argv, char **envp)
 	int pid2 = fork();
 	if (pid2 == 0)
 		ft_child2(argv, fd, fd2, envp);
+	close(fd[0]);
+	close(fd[1]);
+	close(fd2[1]);
 	char *tab = ft_fdtostr(fd2[0]);
-	int		outfd;
+	close(fd2[0]);
+	int	outfd;
 	outfd = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
 	ft_putstr_fd(tab, outfd);
 	close(outfd);
-	close(fd[0]);
-	close(fd[1]);
-	close(fd2[0]);
-	close(fd2[1]);
 	waitpid(pid, 0, 0);
 	waitpid(pid2, 0, 0);
 	return (0);
