@@ -6,67 +6,9 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/05 15:16:53 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/05 20:51:14 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-/*
-| : The pipe operator, it passes the output of one command as input to another.
-A command built from the pipe operator is called a pipeline.
-
-< : Gives input to a command.
-command < file.txt
-The above will execute command on the contents of file.txt.
-
-<> : same as above, but the file is open in read+write mode instead of read-only:
-command <> file.txt
-
-> : Directs the output of a command into a file.
-command > out.txt
-The above will save the output of command as out.txt. 
-If the file exists, its contents will be overwritten and 
-if it does not exist it will be created.
-*/
-
-/*
-./pipex file1 "cmd1" "cmd2" file2
-< file1 cmd1 | cmd2 > file2
-pipe entre cmd1 et cmd2.
-resultat de la cmd1 est l'entree de cmd2.
-resultat de la deuxieme est entree dans file2.
-*/
-
-/*
-void perror(const char *str) : affiche le message d'erreur a la suite de str.
-
-char *strerror(int errnum) : renvoie l'erreur dans une chaine. Prend le numero de l'erreur en parametre (en general errno).
-
-int access(const char *pathname, int mode) : verifie l'acces a un fichier avec mode au choix (F/R/W/X_OK). return 0 if success. 
--1 if failure and sets errno correctly.
-
-int dup(int oldfd) : return new file descriptor.
-
-int dup2(int oldfd, int newfd) : comme dup mais au lieu d'utiliser le fd du numero le plus bas, il utilise celui
-de numero newfd.
-
-int execve(const char *filepath, char *const argv[], char *const envp[]) : execute le programme de filepath.
-argv sont les arguments a passer au programme. envp sont les variables d'env, se termine par NULL.
-Ne retourne rien en cas de succes.
-
-pid_t fork(void) : cree un nouveau processus (=child) en dupliquant celui qui est appelé (=parent).
-child has unique process ID.
-
-int pipe(int pipefd[2]) : cree un tunnel unidirectionnel de données permettant une communication inter-processus. 
-pipe[0] est le fd de lecture et pipe[1] le fd d'ecriture. 0 retourner en cas de succes.
-
-int unlink(const char *pathname) : supprime un nom du systeme de fichier
-*/
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-
-//tester chaque path avec access et lancer cmd avec celui aui fonctionne
 
 size_t	ft_strlen(const char *s)
 {
@@ -233,7 +175,6 @@ char	*ft_path_tester(char *totest, char *cmd)
 	return (NULL);
 }
 
-
 char	*ft_line(char *line, char *buffer, int octet, int fd)
 {
 	while (buffer[0] != '\n' && octet > 0)
@@ -271,15 +212,14 @@ char	*ft_strjoinfree(char *s1, char *s2)
 	return (join);
 }
 
-char *ft_fdtostr(int fd)
+char	*ft_fdtostr(int fd)
 {
 	char	*str;
 	char	buffer[2];
 	int		octet;
-	
+
 	str = NULL;
-	if (read(fd, buffer, 1) == -1)
-		perror("ERROR read fdtostr");
+	octet = read(fd, buffer, 1);
 	buffer[1] = 0;
 	str = ft_strjoinfree(str, buffer);
 	while (octet > 0)
@@ -294,7 +234,6 @@ char *ft_fdtostr(int fd)
 void	ft_putstr_fd(char *s, int fd)
 {
 	int		i;
-	char	eof;
 
 	i = 0;
 	while (s[i])
@@ -322,10 +261,10 @@ void	ft_child(const char **argv, int *fd, char **envp)
 	execve(path, cmd, envp);
 }
 
-void	ft_child2(const char **argv,int *fd, int *fd2, char **envp)
+void	ft_child2(const char **argv, int *fd, int *fd2, char **envp)
 {
-	char **cmd2;
-	char *path;
+	char	**cmd2;
+	char	*path;
 
 	cmd2 = ft_split(argv[3], ' ');
 	path = ft_env(envp);
@@ -339,32 +278,37 @@ void	ft_child2(const char **argv,int *fd, int *fd2, char **envp)
 	execve(path, cmd2, envp);
 }
 
+int	ft_arg_error(void)
+{
+	ft_putstr_fd("Wrong number of arguments\n", 1);
+	return (-1);
+}
+
 int	main(int argc, const char **argv, char **envp)
 {
-	int		fd[2];
-	int		fd2[2];
-	int		pid;
+	int		fd[3][2];
+	int		pid[2];
 	char	*path;
-	char	**cmd;
 
-	pipe(fd);
-	pid = fork();
-	if (pid == 0)
-		ft_child(argv, fd, envp);
-	pipe(fd2);
-	int pid2 = fork();
-	if (pid2 == 0)
-		ft_child2(argv, fd, fd2, envp);
-	close(fd[0]);
-	close(fd[1]);
-	close(fd2[1]);
-	char *tab = ft_fdtostr(fd2[0]);
-	close(fd2[0]);
-	int	outfd;
-	outfd = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
-	ft_putstr_fd(tab, outfd);
-	close(outfd);
-	waitpid(pid, 0, 0);
-	waitpid(pid2, 0, 0);
+	if (argc != 5)
+		return (ft_arg_error());
+	pipe(fd[0]);
+	pid[0] = fork();
+	if (pid[0] == 0)
+		ft_child(argv, fd[0], envp);
+	pipe(fd[1]);
+	pid[1] = fork();
+	if (pid[1] == 0)
+		ft_child2(argv, fd[0], fd[1], envp);
+	close(fd[0][0]);
+	close(fd[0][1]);
+	close(fd[1][1]);
+	path = ft_fdtostr(fd[1][0]);
+	close(fd[1][0]);
+	fd[2][0] = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
+	ft_putstr_fd(path, fd[2][0]);
+	close(fd[2][0]);
+	waitpid(pid[0], 0, 0);
+	waitpid(pid[1], 0, 0);
 	return (0);
 }
