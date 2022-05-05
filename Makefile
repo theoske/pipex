@@ -6,11 +6,11 @@
 #    By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/05 22:02:10 by tkempf-e          #+#    #+#              #
-#    Updated: 2022/05/05 22:03:31 by tkempf-e         ###   ########.fr        #
+#    Updated: 2022/05/05 22:23:44 by tkempf-e         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-SRCS	=	pipex.c pipex_utils.c
+SRCS	=	pipex.c pipex_utils.c pipex_children.c ft_split.c
 
 OBJS	=	$(SRCS:.c=.o)
 
