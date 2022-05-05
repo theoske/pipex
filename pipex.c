@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/05 22:06:11 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/05 22:20:41 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,102 +22,6 @@ size_t	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
-}
-
-static int	ft_nbwords(char const *s, char c)
-{
-	unsigned int	i;
-	unsigned int	nb_word;
-
-	if (s[0] == '\0')
-		return (0);
-	i = 0;
-	while (s[i] == c && s[i])
-		i++;
-	nb_word = 0;
-	while (s[i])
-	{
-		if (s[i] && s[i] == c && s[i - 1] != c)
-			nb_word++;
-		i++;
-	}
-	if (s[i] == '\0' && s[i - 1] != c)
-		nb_word++;
-	return (nb_word);
-}
-
-static char	**ft_tab(char	**tab, char	const *s, char c, int nb_word)
-{
-	int	i;
-	int	j;
-	int	compt;
-
-	i = 0;
-	j = 0;
-	while (s[i] && j < nb_word)
-	{
-		while (s[i] == c && s[i])
-			i++;
-		compt = 0;
-		while (s[i] != c && s[i++])
-			compt ++;
-		if (s[i - 1] != c)
-		{
-			tab[j] = malloc(sizeof(char) * (compt + 1));
-			if (!tab)
-				return (0);
-			tab[j][compt] = '\0';
-		}
-		j++;
-	}
-	return (tab);
-}
-
-static char	**ft_malloc_tab2d(char const *s, char c)
-{
-	size_t			nb_word;
-	char			**tab;
-
-	nb_word = ft_nbwords(s, c);
-	if (s[0] == '\0' && nb_word == 0)
-	{
-		tab = (char **)malloc(sizeof(char *));
-		tab[0] = NULL;
-		return (tab);
-	}
-	tab = (char **)malloc(sizeof(char *) * (nb_word + 1));
-	if (!tab)
-		return (0);
-	tab[nb_word] = 0;
-	tab = ft_tab(tab, s, c, nb_word);
-	return (tab);
-}
-
-char	**ft_split(char const *s, char c)
-{
-	unsigned int	i;
-	unsigned int	index[2];
-	char			**tab;
-
-	tab = ft_malloc_tab2d(s, c);
-	if (!tab)
-		return (NULL);
-	i = 0;
-	index[0] = 0;
-	while (tab[index[0]] && s[i])
-	{
-		while (s[i] == c && s[i])
-			i++;
-		index[1] = 0;
-		while (s[i] != c && s[i])
-		{
-			tab[index[0]][index[1]] = s[i];
-			index[1]++;
-			i++;
-		}
-		index[0]++;
-	}
-	return (tab);
 }
 
 char	*ft_strjoin(char *s1, char *s2)
@@ -143,49 +47,6 @@ char	*ft_strjoin(char *s1, char *s2)
 	}
 	join[i + j] = '\0';
 	return (join);
-}
-
-char	*ft_env(char **envp)
-{
-	int		i;
-
-	i = 0;
-	while (envp[i])
-	{
-		if (envp[i][0] == 'P' && envp[i][1] == 'A' && envp[i][2] == 'T'
-		&& envp[i][3] == 'H')
-			return (envp[i] + 5);
-		i++;
-	}
-	return (NULL);
-}
-
-char	*ft_path_tester(char *totest, char *cmd)
-{
-	char	**tab;
-	int		i;
-
-	i = 0;
-	tab = ft_split(totest, ':');
-	while (tab && tab[i])
-	{
-		tab[i] = ft_strjoin(tab[i], ft_strjoin("/", cmd));
-		if (access(tab[i], R_OK) == 0)
-			return (tab[i]);
-		i++;
-	}
-	return (NULL);
-}
-
-char	*ft_line(char *line, char *buffer, int octet, int fd)
-{
-	while (buffer[0] != '\n' && octet > 0)
-	{
-		octet = read(fd, buffer, 1);
-		buffer[octet] = '\0';
-		line = ft_strjoin(line, buffer);
-	}
-	return (line);
 }
 
 char	*ft_strjoinfree(char *s1, char *s2)
@@ -214,25 +75,6 @@ char	*ft_strjoinfree(char *s1, char *s2)
 	return (join);
 }
 
-char	*ft_fdtostr(int fd)
-{
-	char	*str;
-	char	buffer[2];
-	int		octet;
-
-	str = NULL;
-	octet = read(fd, buffer, 1);
-	buffer[1] = 0;
-	str = ft_strjoinfree(str, buffer);
-	while (octet > 0)
-	{
-		octet = read(fd, buffer, 1);
-		buffer[octet] = 0;
-		str = ft_strjoinfree(str, buffer);
-	}
-	return (str);
-}
-
 void	ft_putstr_fd(char *s, int fd)
 {
 	int		i;
@@ -243,69 +85,6 @@ void	ft_putstr_fd(char *s, int fd)
 		write(fd, &(s[i]), 1);
 		i++;
 	}
-}
-
-void	ft_child(const char **argv, int *fd, char **envp)
-{
-	int		fdo;
-	char	*path;
-	char	**cmd;
-
-	path = ft_env(envp);
-	cmd = ft_split((char *)argv[2], ' ');
-	fdo = open(argv[1], O_RDONLY);
-	path = ft_path_tester(path, cmd[0]);
-	dup2(fd[1], STDOUT_FILENO);
-	dup2(fdo, STDIN_FILENO);
-	close(fd[0]);
-	close(fd[1]);
-	close(fdo);
-	execve(path, cmd, envp);
-}
-
-void	ft_child2(const char **argv, int *fd, int *fd2, char **envp)
-{
-	char	**cmd2;
-	char	*path;
-
-	cmd2 = ft_split(argv[3], ' ');
-	path = ft_path_tester(ft_env(envp), cmd2[0]);
-	dup2(fd[0], STDIN_FILENO);
-	dup2(fd2[1], STDOUT_FILENO);
-	close(fd[0]);
-	close(fd[1]);
-	close(fd2[1]);
-	close(fd2[0]);
-	execve(path, cmd2, envp);
-}
-
-int	ft_error(int argc, const char **argv, char **envp)
-{
-	char	**cmd;
-
-	if (argc != 5)
-	{
-		ft_putstr_fd("number of arguments error\n", 1);
-		return (-1);
-	}
-	if (access(argv[1], F_OK) == -1)
-	{
-		ft_putstr_fd("file1 error\n", 1);
-		return (-1);
-	}
-	cmd = ft_split((char *)argv[2], ' ');
-	if (ft_path_tester(ft_env(envp), cmd[0]) == NULL)
-	{
-		ft_putstr_fd("cmd1 error\n", 1);
-		return (-1);
-	}
-	cmd = ft_split((char *)argv[3], ' ');
-	if (ft_path_tester(ft_env(envp), cmd[0]) == NULL)
-	{
-		ft_putstr_fd("cmd2 error\n", 1);
-		return (-1);
-	}
-	return (0);
 }
 
 int	main(int argc, const char **argv, char **envp)
