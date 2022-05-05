@@ -6,14 +6,11 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/05 21:27:32 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/05 22:06:11 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
+#include "pipex.h"
 
 size_t	ft_strlen(const char *s)
 {
