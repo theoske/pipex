@@ -6,13 +6,13 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 22:16:33 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/05 22:20:48 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/05 22:32:27 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static int	ft_nbwords(char const *s, char c)
+int	ft_nbwords(char const *s, char c)
 {
 	unsigned int	i;
 	unsigned int	nb_word;
@@ -34,7 +34,7 @@ static int	ft_nbwords(char const *s, char c)
 	return (nb_word);
 }
 
-static char	**ft_tab(char	**tab, char	const *s, char c, int nb_word)
+char	**ft_tab(char	**tab, char	const *s, char c, int nb_word)
 {
 	int	i;
 	int	j;
@@ -61,7 +61,7 @@ static char	**ft_tab(char	**tab, char	const *s, char c, int nb_word)
 	return (tab);
 }
 
-static char	**ft_malloc_tab2d(char const *s, char c)
+char	**ft_malloc_tab2d(char const *s, char c)
 {
 	size_t			nb_word;
 	char			**tab;

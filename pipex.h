@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/05 22:03:51 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/05 22:13:26 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/05 22:31:27 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@
 # include <fcntl.h>
 
 size_t		ft_strlen(const char *s);
-static int	ft_nbwords(char const *s, char c);
-static char	**ft_tab(char	**tab, char	const *s, char c, int nb_word);
-static char	**ft_malloc_tab2d(char const *s, char c);
+int			ft_nbwords(char const *s, char c);
+char		**ft_tab(char	**tab, char	const *s, char c, int nb_word);
+char		**ft_malloc_tab2d(char const *s, char c);
 char		**ft_split(char const *s, char c);
 char		*ft_strjoin(char *s1, char *s2);
 char		*ft_env(char **envp);
