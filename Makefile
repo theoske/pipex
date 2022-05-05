@@ -6,7 +6,7 @@
 #    By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/05 22:02:10 by tkempf-e          #+#    #+#              #
-#    Updated: 2022/05/05 22:48:00 by tkempf-e         ###   ########.fr        #
+#    Updated: 2022/05/05 22:53:10 by tkempf-e         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,6 @@ NAME	=	pipex
 	$(GCC) $(FLAGS) -c -I. $< -o ${<:.c=.o}
 
 $(NAME):	$(OBJS)
-#			ar rcs $@ $^
 
 all:		$(NAME)
 
