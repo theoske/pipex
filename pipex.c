@@ -6,9 +6,14 @@
 /*   By: tkempf-e <tkempf-e@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 14:38:34 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/05/05 20:51:14 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/05/05 21:27:32 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
 
 size_t	ft_strlen(const char *s)
 {
@@ -267,8 +272,7 @@ void	ft_child2(const char **argv, int *fd, int *fd2, char **envp)
 	char	*path;
 
 	cmd2 = ft_split(argv[3], ' ');
-	path = ft_env(envp);
-	path = ft_path_tester(path, cmd2[0]);
+	path = ft_path_tester(ft_env(envp), cmd2[0]);
 	dup2(fd[0], STDIN_FILENO);
 	dup2(fd2[1], STDOUT_FILENO);
 	close(fd[0]);
@@ -278,10 +282,33 @@ void	ft_child2(const char **argv, int *fd, int *fd2, char **envp)
 	execve(path, cmd2, envp);
 }
 
-int	ft_arg_error(void)
+int	ft_error(int argc, const char **argv, char **envp)
 {
-	ft_putstr_fd("Wrong number of arguments\n", 1);
-	return (-1);
+	char	**cmd;
+
+	if (argc != 5)
+	{
+		ft_putstr_fd("number of arguments error\n", 1);
+		return (-1);
+	}
+	if (access(argv[1], F_OK) == -1)
+	{
+		ft_putstr_fd("file1 error\n", 1);
+		return (-1);
+	}
+	cmd = ft_split((char *)argv[2], ' ');
+	if (ft_path_tester(ft_env(envp), cmd[0]) == NULL)
+	{
+		ft_putstr_fd("cmd1 error\n", 1);
+		return (-1);
+	}
+	cmd = ft_split((char *)argv[3], ' ');
+	if (ft_path_tester(ft_env(envp), cmd[0]) == NULL)
+	{
+		ft_putstr_fd("cmd2 error\n", 1);
+		return (-1);
+	}
+	return (0);
 }
 
 int	main(int argc, const char **argv, char **envp)
@@ -290,8 +317,8 @@ int	main(int argc, const char **argv, char **envp)
 	int		pid[2];
 	char	*path;
 
-	if (argc != 5)
-		return (ft_arg_error());
+	if (ft_error(argc, argv, envp) == -1)
+		return (-1);
 	pipe(fd[0]);
 	pid[0] = fork();
 	if (pid[0] == 0)
